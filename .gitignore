@@ -1,0 +1,6 @@
+/.env
+/log_available.txt
+/log_upcoming.txt
+/run_available.cmd
+/run_upcoming.cmd
+/node_modules
