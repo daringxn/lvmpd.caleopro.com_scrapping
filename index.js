@@ -122,6 +122,7 @@ const getOvertimes = (options) => {
       // }
       if (message.length > 0) {
         message = ucfirst(options?.type) + " Overtime" + message;
+        // console.log(message);
         twilioClient.messages
           .create({
             to: process.env.USER_PHONE_NUMBER,
@@ -134,7 +135,6 @@ const getOvertimes = (options) => {
           .catch((error) => {
             console.error(error);
           });
-        console.log(message);
       }
       getOvertimes(options);
     })
