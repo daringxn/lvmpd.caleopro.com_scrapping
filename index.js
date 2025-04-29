@@ -75,7 +75,7 @@ const signUp = ({ overtime, authentication }) => {
         query:
           "mutation AssignShift($id: String!, $userId: String, $note: String) { shiftAssign(id: $id, userId: $userId, note: $note) { id } }",
         variables: {
-          id: overtime?.id,
+          id: overtime.id,
           userId: USER_ID,
         },
       };
@@ -133,7 +133,7 @@ const getOvertimes = (options) => {
           status === "FIRST_COME_FIRST_SERVE" &&
           !PROCESSED_OVERTIME_IDS.includes(id)
         ) {
-          if (options?.type === "available") {
+          if (options?.type === "available" && process.env.ALLOW_SIGN_UP) {
             signUp({
               overtime: overtimes[i],
               authentication: options.authentication,
