@@ -7,6 +7,12 @@ const { ucfirst } = require("./utils");
 
 const twilioClient = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
 
+const CALEOPRO_API_URL = "https://api.caleopro.com/prod/graphql/";
+
+const USERNAME = "j15739i@lvmpd.com",
+  PASSWORD = "Ih@tecaleo8",
+  USER_ID = "65810eb96b4100cdebc8afd1";
+
 const PROCESSED_OVERTIME_IDS = [];
 
 const getAuthentication = async (refreshToken) => {
@@ -25,8 +31,8 @@ const getAuthentication = async (refreshToken) => {
     : {
         AuthFlow: "USER_PASSWORD_AUTH",
         AuthParameters: {
-          USERNAME: "j15739i@lvmpd.com",
-          PASSWORD: "Ih@tecaleo8",
+          USERNAME,
+          PASSWORD,
         },
         ClientId: clientId,
         ClientMetadata: {},
@@ -49,8 +55,45 @@ const getAuthentication = async (refreshToken) => {
   }
 };
 
+const signUp = ({ overtime, authentication }) => {
+  const payload = overtime.shiftBufferShift
+    ? {
+        operationName: "CreateShiftBuffer",
+        query:
+          "mutation CreateShiftBuffer($input: CreateShiftBufferRequest) { shiftBufferRequest(shiftBufferRequest: $input) { id } }",
+        variables: {
+          input: {
+            shiftId: overtime.id,
+            shiftBufferShiftId: overtime.shiftBufferShift.id,
+            userId: USER_ID,
+            note: "",
+          },
+        },
+      }
+    : {
+        operationName: "AssignShift",
+        query:
+          "mutation AssignShift($id: String!, $userId: String, $note: String) { shiftAssign(id: $id, userId: $userId, note: $note) { id } }",
+        variables: {
+          id: overtime?.id,
+          userId: USER_ID,
+        },
+      };
+  axios
+    .post(CALEOPRO_API_URL, payload, {
+      headers: {
+        Authorization: "Bearer " + authentication.accessToken,
+      },
+    })
+    .then((response) => {
+      console.log(response.data);
+    })
+    .catch((error) => {
+      console.error(error);
+    });
+};
+
 const getOvertimes = (options) => {
-  const url = "https://api.caleopro.com/prod/graphql/";
   const payload = {
     operationName: "GetAvailableShifts",
     query:
@@ -66,7 +109,7 @@ const getOvertimes = (options) => {
     },
   };
   axios
-    .post(url, payload, {
+    .post(CALEOPRO_API_URL, payload, {
       headers: {
         Authorization: "Bearer " + options?.authentication?.accessToken,
       },
@@ -90,6 +133,12 @@ const getOvertimes = (options) => {
           status === "FIRST_COME_FIRST_SERVE" &&
           !PROCESSED_OVERTIME_IDS.includes(id)
         ) {
+          if (options?.type === "available") {
+            signUp({
+              overtime: overtimes[i],
+              authentication: options.authentication,
+            });
+          }
           const {
             event: { name: eventName },
             assignment: { name: assignmentName },
