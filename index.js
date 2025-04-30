@@ -133,7 +133,7 @@ const getOvertimes = (options) => {
           status === "FIRST_COME_FIRST_SERVE" &&
           !PROCESSED_OVERTIME_IDS.includes(id)
         ) {
-          if (options?.type === "available" && process.env.ALLOW_SIGN_UP) {
+          if (options?.type === "available" && process.env.ALLOW_SIGN_UP === "true") {
             signUp({
               overtime: overtimes[i],
               authentication: options.authentication,
