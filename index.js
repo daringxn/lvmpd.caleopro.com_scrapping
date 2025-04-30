@@ -133,7 +133,7 @@ const getOvertimes = (options) => {
           status === "FIRST_COME_FIRST_SERVE" &&
           !PROCESSED_OVERTIME_IDS.includes(id)
         ) {
-          if (options?.type === "available" && process.env.ALLOW_SIGN_UP === "true") {
+          if (options?.type === "available" && process.env.SIGN_UP_OVERTIME_ID === id) {
             signUp({
               overtime: overtimes[i],
               authentication: options.authentication,
@@ -155,7 +155,9 @@ const getOvertimes = (options) => {
             " hours | " +
             startTime.format("ddd DD MMM YYYY HH:mm") +
             " - " +
-            endTime.format("ddd DD MMM YYYY HH:mm");
+            endTime.format("ddd DD MMM YYYY HH:mm") +
+            "\n" +
+            id;
           PROCESSED_OVERTIME_IDS.push(id);
           if (message.length > 1000) {
             break;
